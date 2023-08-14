@@ -1,0 +1,14 @@
+{
+  "load_error.1":"运行项目后，请获取 webview 地址，粘贴至多维表格「扩展脚本」中使用。详见：",
+  "load.guide":"开发指南",
+  "title":"将 URL 对应的图片、文件转换为附件（支持 20M 以内文件)",
+  "title.desc":"点击右上角🔗按钮获取授权码，详情可参考[使用指南](https://bytedance.feishu.cn/wiki/NodfwUs8Mi2t60k28CScVd9knCd)",
+  "base.token":"多维表格授权码",
+  "choosed.table":"选择数据表",
+  "choosed.url":"选择 URL字段",
+  "choosed.att":"选择附件字段",
+  "cover":"覆盖已有附件",
+  "ok":"确定",
+  "choosed.error":"请选择完整信息",
+  "end":"处理完毕"
+}

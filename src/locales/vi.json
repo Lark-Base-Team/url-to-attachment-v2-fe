@@ -1,0 +1,14 @@
+{
+"load_error.1": "Sau khi chạy dự án, vui lòng lấy địa chỉ webview và dán vào bảng đa chiều \"Extended Script\" để sử dụng. Xem: ",
+"load.guide": "Hướng dẫn phát triển",
+"title": "Chuyển đổi các hình ảnh và tệp tương ứng với URL thành đính kèm (hỗ trợ tệp trong khoảng 20M)",
+"title.desc": "Nhấp vào nút 🔗 ở góc phải trên cùng để lấy mã xác thực. Để biết chi tiết, vui lòng tham khảo [Hướng dẫn người dùng](https://bytedance.feishu.cn/wiki/NodfwUs8Mi2t60k28CScVd9knCd)",
+"base.token": "Mã xác thực biểu mẫu đa chiều",
+"choosed.table": "Chọn bảng dữ liệu",
+"choosed.url": "Chọn trường URL",
+"choosed.att": "Chọn trường đính kèm",
+"cover": "Ghi đè lên các đính kèm hiện có",
+"ok": "OK",
+"choosed.error": "Vui lòng chọn thông tin đầy đủ",
+"end": "Đã xử lý"
+}
