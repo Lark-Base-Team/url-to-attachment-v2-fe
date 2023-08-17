@@ -21,7 +21,7 @@
     "vite": "^3.0.4"
   },
   "dependencies": {
-    "@base-open/web-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/base-open-web-api-0.2.0-beta.4.tgz",
+    "@base-open/web-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/lark-base-open-web-api-0.2.1-beta.2.tgz",
     "antd": "^5.7.3",
     "axios": "^1.4.0",
     "i18next": "^23.4.2",

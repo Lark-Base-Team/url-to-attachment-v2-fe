@@ -1,4 +1,5 @@
-import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType } from "@base-open/web-api";
+import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix } from "@base-open/web-api";
+import { downloadFile2 } from "./download";
 // @ts-ignore
 window.bitable = bitable
 
@@ -42,11 +43,16 @@ ${t('title.desc')}
 
     uiBuilder.showLoading(' ');
 
-    const table = await bitable.base.getTableById(tableId)
-    const urlField = await table.getFieldById(urlFieldId)
+    const table = tableId
+    const urlField = urlFieldId
+    tableId = table.id;
+    urlFieldId = urlField.id;
+    attachmentFieldId = attachmentFieldId.id
     const urlFieldType = await urlField.getType();
     const urlValueList = await urlField.getFieldValueList();
     const totalCellCount = urlValueList.length;
+
+    console.log({ table, urlField, urlFieldType, urlValueList, totalCellCount }, '-------')
     let current = 0;
     for (let cellValue of urlValueList) {
       uiBuilder.showLoading(`${current}/${totalCellCount}`);
@@ -105,23 +111,40 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null> {
   if (urlTokenCache.has(data.url)) {
     return urlTokenCache.get(data.url)
   }
-
-  return fetch('https://url-zhuan-fu-jian-hou-duan-zheng-shi-lark-base.replit.app/upload/file', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }).then((res) => {
-    return res.json().then((r) => {
-      if (r.msg === 'success') {
-        delete r.msg;
-        urlTokenCache.set(data.url, r)
-        return r
+  try {
+    const attachment = await feDownloadFile(data.url)
+    return attachment
+  } catch (error) {
+    console.log('使用服务端下载', data.url)
+    return fetch('https://url-zhuan-fu-jian-hou-duan-zheng-shi-lark-base.replit.app/upload/file', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json'
       }
-    })
+    }).then((res) => {
+      return res.json().then((r) => {
+        if (r.msg === 'success') {
+          delete r.msg;
+          urlTokenCache.set(data.url, r)
+          return r
+        }
+      })
 
-  }).catch(() => {
-    return null
-  })
+    }).catch(() => {
+      return null
+    })
+  }
+}
+
+async function feDownloadFile(url: any): Promise<IOpenAttachment | null> {
+  const file = await downloadFile2({ url, filename: new Date().getTime() + '' })
+  const [token] = await bitable.base.batchUploadFile([file])
+  return {
+    token,
+    size: file.size,
+    name: file.name,
+    type: file.type,
+    timeStamp: new Date().getTime()
+  }
 }
