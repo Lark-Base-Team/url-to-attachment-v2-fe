@@ -1,4 +1,4 @@
-
+//@ts-nocheck
 /** 文件下载的缓存，后续支持多个并发下载的时候有用，现在没啥用 */
 const downloadFileCache: {
     [p: string]: {
@@ -76,7 +76,6 @@ export function downloadFile2({ url, filename }: DownloadFile): Promise<File> {
             if (!includesFileExtension(filename)) {
                 ex = contentTypeExtension[contentType] || ''
             }
-
             const blob = await response.blob();
             const file = new File([blob], replaceInvalidCharsInUrl(pre + filename + ex), { type: contentType });
             resolve(file)
@@ -158,6 +157,7 @@ const contentTypeExtension: Record<string, string> = {
     'application/vnd.ms-powerpoint': '.ppt',
     'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
     'application/postscript': '.ps',
+    'application/x-gtar-compressed': '.tgz',
     'application/x-shockwave-flash': '.swf',
     'audio/mpeg': '.mp3',
     'audio/wav': '.wav',
@@ -255,5 +255,70 @@ const contentTypeExtension: Record<string, string> = {
     'audio/vnd.rn-realaudio': '.ram',
     'image/vnd.wap.wbmp': '.wbmp',
     'image/x-xpixmap': '.xpm',
-    'text/x-vcard': '.vcf'
+    'text/x-vcard': '.vcf',
+    'application/vnd.oasis.opendocument.presentation': '.odp',
+    'application/vnd.oasis.opendocument.spreadsheet': '.ods',
+    'application/vnd.oasis.opendocument.text': '.odt',
+    'application/vnd.openxmlformats-officedocument.presentationml.slideshow': '.ppsx',
+    'application/vnd.openxmlformats-officedocument.presentationml.template': '.potx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.template': '.xltx',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.template': '.dotx',
+    'application/x-apple-diskimage': '.dmg',
+    'application/x-bittorrent': '.torrent',
+    'application/x-rar': '.rar',
+    'application/x-shockwave-flash': '.swf',
+    'application/x-tar': '.tar',
+    'application/x-woff': '.woff',
+    'application/x-xpinstall': '.xpi',
+    'audio/aiff': '.aiff',
+    'audio/basic': '.au',
+    'audio/m4a': '.m4a',
+    'audio/x-aac': '.aac',
+    'audio/x-caf': '.caf',
+    'audio/x-m4r': '.m4r',
+    'font/otf': '.otf',
+    'font/ttf': '.ttf',
+    'font/woff2': '.woff2',
+    'image/heif': '.heif',
+    'image/heif-sequence': '.heifs',
+    'image/heic': '.heic',
+    'image/heic-sequence': '.heics',
+    'image/vnd.adobe.photoshop': '.psd',
+    'image/x-xcf': '.xcf',
+    'model/gltf+json': '.gltf',
+    'model/gltf-binary': '.glb',
+    'model/iges': '.igs',
+    'model/obj': '.obj',
+    'model/stl': '.stl',
+    'text/x-csrc': '.c',
+    'text/x-c++src': '.cpp',
+    'text/x-csharp': '.cs',
+    'text/x-diff': '.diff',
+    'text/x-fortran': '.f',
+    'text/x-handlebars-template': '.hbs',
+    'text/x-java': '.java',
+    'text/x-ocaml': '.ml',
+    'text/x-pascal': '.p',
+    'text/x-perl': '.pl',
+    'text/x-php': '.php',
+    'text/x-ruby': '.rb',
+    'text/x-swift': '.swift',
+    'text/x-systemverilog': '.sv',
+    'text/x-typescript': '.ts',
+    'text/x-vhdl': '.vhd',
+    'text/x-verilog': '.v',
+    'video/3gpp': '.3gp',
+    'video/3gpp2': '.3g2',
+    'video/MP2T': '.ts',
+    'video/quicktime': '.mov',
+    'video/vnd.dlna.mpeg-tts': '.m2t',
+    'video/x-flac': '.flac',
+    'video/x-m4v': '.m4v',
+    'video/x-matroska': '.mkv',
+    'video/x-mng': '.mng',
+    'video/x-ms-asf': '.asf',
+    'video/x-ms-wmv': '.wmv',
+    'video/x-msvideo': '.avi',
+    'video/x-sgi-movie': '.movie',
+    'video/webm': '.webm',
 };

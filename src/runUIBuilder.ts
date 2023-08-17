@@ -52,7 +52,6 @@ ${t('title.desc')}
     const urlValueList = await urlField.getFieldValueList();
     const totalCellCount = urlValueList.length;
 
-    console.log({ table, urlField, urlFieldType, urlValueList, totalCellCount }, '-------')
     let current = 0;
     for (let cellValue of urlValueList) {
       uiBuilder.showLoading(`${current}/${totalCellCount}`);
@@ -94,8 +93,16 @@ ${t('title.desc')}
           }
         })
 
-        const attachments = (await Promise.all(datas.map((d) => getAttachment(d)))).filter((v) => v) as any;
-        console.log(attachments)
+        const attachments = (await Promise.all(datas.map((d, index) => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(getAttachment(d))
+            }, 1000 * index);
+          })
+
+
+          // return getAttachment(d)
+        }))).filter((v) => v) as any;
         await table.setCellValue(attachmentFieldId, recordId, attachments)
         current++;
       }
