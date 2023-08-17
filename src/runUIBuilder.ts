@@ -123,7 +123,7 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null> {
     return attachment
   } catch (error) {
     console.log('使用服务端下载', data.url)
-    return fetch('https://url-zhuan-fu-jian-hou-duan-zheng-shi-lark-base.replit.app/upload/file', {
+    return fetch('https://url-to-attachment-v2-api.plz.click/upload/file', {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
