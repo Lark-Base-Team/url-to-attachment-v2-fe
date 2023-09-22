@@ -1,4 +1,4 @@
-import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix } from "@base-open/web-api";
+import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix } from "@lark-base-open/js-sdk";
 import { downloadFile2 } from "./download";
 // @ts-ignore
 window.bitable = bitable
@@ -15,20 +15,23 @@ ${t('title.desc')}
   uiBuilder.form((form: any) => ({
     formItems: [
       form.input('PersonalBaseToken', { label: t('base.token') }),
-      form.tableSelect('tableId', { label: t('choosed.table') }),
-      form.fieldSelect('urlFieldId', {
+      form.tableSelect('table', { label: t('choosed.table') }),
+      form.fieldSelect('urlField', {
         required: true, label: t('choosed.url'),
-        filterByTypes: [FieldType.Text, FieldType.Url], sourceTable: 'tableId'
+        filterByTypes: [FieldType.Text, FieldType.Url], sourceTable: 'table'
       }),
-      form.fieldSelect('attachmentFieldId', {
+      form.fieldSelect('attachmentField', {
         label: t('choosed.att'),
-        filterByTypes: [FieldType.Attachment], sourceTable: 'tableId'
+        filterByTypes: [FieldType.Attachment], sourceTable: 'table'
       }),
       form.checkboxGroup('cover', { label: '', options: [t('cover')], defaultValue: [] }),
     ],
     buttons: [t('ok')],
   }), async ({ values }: any) => {
-    let { tableId, urlFieldId, cover, attachmentFieldId, PersonalBaseToken } = values;
+    let { table, urlField, cover, attachmentField, PersonalBaseToken } = values;
+    const tableId = table?.id
+    const urlFieldId = urlField?.id
+    const attachmentFieldId = attachmentField?.id
     cover = cover.length ? true : false;
     if (!tableId || !urlFieldId || !attachmentFieldId || !PersonalBaseToken) {
       uiBuilder.message.error(t('choosed.error'))
@@ -42,12 +45,6 @@ ${t('title.desc')}
 
 
     uiBuilder.showLoading(' ');
-
-    const table = tableId
-    const urlField = urlFieldId
-    tableId = table.id;
-    urlFieldId = urlField.id;
-    attachmentFieldId = attachmentFieldId.id
     const urlFieldType = await urlField.getType();
     const urlValueList = await urlField.getFieldValueList();
     const totalCellCount = urlValueList.length;
