@@ -90,10 +90,14 @@ ${t('title.desc')}
           }
         })
 
-        const attachments = (await Promise.all(datas.map(async (d) => {
+        const attachments = (await Promise.all(datas.map(async (d, index) => {
           return getAttachment(d)
-        }))).filter((v) => v !== null)
-        await table.setCellValue(attachmentFieldId, recordId, attachments)
+        }))).filter((v) => v && v.token && v.timeStamp)
+        try {
+          await table.setCellValue(attachmentFieldId, recordId, attachments)
+        } catch (error) {
+          console.log(error)
+        }
         current++;
       }
     };
@@ -126,6 +130,7 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null> {
           urlTokenCache.set(data.url, r)
           return r
         }
+        return null
       })
 
     }).catch(() => {
