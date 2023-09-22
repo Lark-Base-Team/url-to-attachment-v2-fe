@@ -90,16 +90,9 @@ ${t('title.desc')}
           }
         })
 
-        const attachments = (await Promise.all(datas.map((d, index) => {
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve(getAttachment(d))
-            }, 1000 * index);
-          })
-
-
-          // return getAttachment(d)
-        }))).filter((v) => v) as any;
+        const attachments = (await Promise.all(datas.map(async (d) => {
+          return getAttachment(d)
+        }))).filter((v) => v !== null)
         await table.setCellValue(attachmentFieldId, recordId, attachments)
         current++;
       }
