@@ -3,6 +3,7 @@ import { downloadFile2 } from "./download";
 // @ts-ignore
 window.bitable = bitable
 
+const ISURLREG = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/
 const urlTokenCache = new Map()
 //
 
@@ -18,7 +19,7 @@ ${t('title.desc')}
       form.tableSelect('table', { label: t('choosed.table') }),
       form.fieldSelect('urlField', {
         required: true, label: t('choosed.url'),
-        filterByTypes: [FieldType.Text, FieldType.Url], sourceTable: 'table'
+        filterByTypes: [FieldType.Text, FieldType.Url, FieldType.Lookup, FieldType.Formula], sourceTable: 'table'
       }),
       form.fieldSelect('attachmentField', {
         label: t('choosed.att'),
@@ -63,23 +64,18 @@ ${t('title.desc')}
       if (!value) continue;
       const urlList: string[] = []
       if (Array.isArray(value)) {
-        if (urlFieldType === FieldType.Url) {
-          value.forEach((item: any) => {
-            if (item.link?.includes?.('http')) {
+        value.forEach((item) => {
+          if (item.type === IOpenSegmentType.Url) {
+            if (ISURLREG.test(item.link)) {
               urlList.push(item.link)
             }
-          })
-        } else if (urlFieldType === FieldType.Text) {
-          if (checkers.isSegments(value)) {
-            value.forEach((item) => {
-              if (item.type === IOpenSegmentType.Url) {
-                if (item.link?.includes?.('http')) {
-                  urlList.push(item.link)
-                }
-              }
-            })
           }
-        }
+          if (item.type === IOpenSegmentType.Text) {
+            if (ISURLREG.test(item.text)) {
+              urlList.push(item.text)
+            }
+          }
+        })
         if (!urlList.length) continue;
         const datas = urlList.map((item: any) => {
           return {
