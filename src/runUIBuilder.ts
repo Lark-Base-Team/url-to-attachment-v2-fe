@@ -155,7 +155,7 @@ async function feDownloadFile(url: any): Promise<IOpenAttachment | null> {
 /** 后端下载的模式 */
 async function beDownload({ params }: { params: RequestInit }) {
     try {
-        return await fetch('https://urlzhuan-fu-jian-v2-hou-duan.lark-base.repl.co/upload/file', params);
+        return await fetch('https://url-zhuan-fu-jian-v-2-hou-duan-lark-base.replit.app/upload/file', params);
     } catch {
         console.error('==后端1下载失败，尝试另一个接口');
         return await fetch('https://url-zhuan-fu-jian-v-2-hou-duan-lark-base.replit.app/upload/file', params);
