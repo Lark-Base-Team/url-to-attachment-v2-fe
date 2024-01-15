@@ -1,8 +1,8 @@
 {
-   "load_error.1":"After running the project, please get the webview address and paste it into the multidimensional table \"Extended Script\" for use. See: ",
+   "load_error.1": "After running the project, please get the webview address and paste it into the multidimensional table \"Extended Script\" for use. See: ",
    "load.guide": "Development Guide",
-   "title":"Convert the pictures and files corresponding to the URL into attachments (support files within 20M)",
-   "title.desc": "Click the 🔗 button in the upper right corner to get the authorization code. For details, please refer to [User Guide](https://bytedance.feishu.cn/wiki/NodfwUs8Mi2t60k28CScVd9knCd)",
+   "title": "Convert the pictures and files corresponding to the URL into attachments (support files within 20M)",
+   "title.desc": "Click the 🔗 button in the upper right corner to get the authorization code. For details, please refer to [User Guide](https://feishu.feishu.cn/docx/Samyd47njoe46wx6cgWcDIywnZZ)",
    "base.token": "Authorization code",
    "choosed.table": "Choose table",
    "choosed.url": "Choose the URL field",
@@ -10,5 +10,8 @@
    "cover": "Overwrite existing attachments",
    "ok": "OK",
    "choosed.error": "Please choose complete information",
-   "end": "Processed"
+   "end": "Processed",
+   "download.error": "File 「{{url}}」 download failed: {{error}}\n",
+   "choosed.view": "Choose view",
+   "end.with.error": "An error occurred when downloading the following link:\n"
 }

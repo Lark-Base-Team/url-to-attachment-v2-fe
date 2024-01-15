@@ -42,7 +42,7 @@ function LoadErr() {
   const {t} = useTranslation();
   return <div>
             {t('load_error.1')}
-            <a target='_blank' href='https://bytedance.feishu.cn/docx/HazFdSHH9ofRGKx8424cwzLlnZc'>{t('load.guide')}</a>
+            <a target='_blank' href='https://feishu.feishu.cn/docx/U3wodO5eqome3uxFAC3cl0qanIe'>{t('load.guide')}</a>
           </div>
         
 }
