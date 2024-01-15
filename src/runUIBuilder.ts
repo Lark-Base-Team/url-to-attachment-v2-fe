@@ -2,12 +2,12 @@ import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldE
 import { downloadFile2 } from "./download";
 // @ts-ignore
 window.bitable = bitable
-
+let _errorLog: { [p: string]: string } = {}
 const ISURLREG = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/
 const urlTokenCache = new Map()
 //
 
-export default async function main(uiBuilder: any, t = (s: string) => s) {
+export default async function main(uiBuilder: any, t: any = (s: string) => s) {
     uiBuilder.markdown(`
 ### ${t('title')}
 ${t('title.desc')}
@@ -17,6 +17,7 @@ ${t('title.desc')}
         formItems: [
             form.input('PersonalBaseToken', { label: t('base.token') }),
             form.tableSelect('table', { label: t('choosed.table') }),
+            form.viewSelect('view', { label: t('choosed.view'), sourceTable: 'table' }),
             form.fieldSelect('urlField', {
                 required: true, label: t('choosed.url'),
                 filterByTypes: [FieldType.Text, FieldType.Url, FieldType.Lookup, FieldType.Formula], sourceTable: 'table'
@@ -29,7 +30,7 @@ ${t('title.desc')}
         ],
         buttons: [t('ok')],
     }), async ({ values }: any) => {
-        let { table, urlField, cover, attachmentField, PersonalBaseToken } = values;
+        let { table, view, urlField, cover, attachmentField, PersonalBaseToken } = values;
         const tableId = table?.id
         const urlFieldId = urlField?.id
         const attachmentFieldId = attachmentField?.id
@@ -47,10 +48,16 @@ ${t('title.desc')}
 
         uiBuilder.showLoading(' ');
         const urlFieldType = await urlField.getType();
-        const urlValueList = await urlField.getFieldValueList();
+        const viewRecordIds = await view.getVisibleRecordIdList();
+        let urlValueList = await urlField.getFieldValueList();
+        urlValueList = urlValueList.filter(({ record_id }: any) => viewRecordIds.includes(record_id))
+        console.log('===当前视图下的url', urlValueList)
         const totalCellCount = urlValueList.length;
 
         let current = 0;
+        _errorLog = {}
+        // @ts-ignore
+        window._errorLog = _errorLog
         for (let cellValue of urlValueList) {
             uiBuilder.showLoading(`${current}/${totalCellCount}`);
             const recordId = cellValue.record_id!;
@@ -87,7 +94,14 @@ ${t('title.desc')}
                 })
 
                 const attachments = (await Promise.all(datas.map(async (d, index) => {
-                    return getAttachment(d)
+                    const file = await getAttachment(d);
+                    if ((file as IErrorLog)?.status === 'error') {
+                        const { url, error } = file as IErrorLog
+                        _errorLog[url] = error;
+                        uiBuilder.message.error(t('download.error', { url, error }), 1.5)
+                        return null
+                    }
+                    return file as IOpenAttachment | null
                 }))).filter((v) => v && v.token && v.timeStamp)
                 try {
                     await table.setCellValue(attachmentFieldId, recordId, attachments)
@@ -99,12 +113,19 @@ ${t('title.desc')}
         };
         uiBuilder.hideLoading()
         uiBuilder.message.success(t('end'))
+        if (Object.keys(_errorLog).length) {
+            uiBuilder.text(t('end.with.error'));
+            for (const url in _errorLog) {
+                uiBuilder.text(t('download.error', { url, error: _errorLog[url] }))
+            }
+
+        }
     })
 }
 
+interface IErrorLog { status: 'error', error: string, url: string }
 
-
-async function getAttachment(data: any): Promise<IOpenAttachment | null> {
+async function getAttachment(data: any): Promise<IOpenAttachment | null | IErrorLog> {
     if (urlTokenCache.has(data.url)) {
         return urlTokenCache.get(data.url)
     }
@@ -123,7 +144,11 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null> {
             }
         }).then((res) => {
             if (!res) {
-                throw 'error'
+                return {
+                    error: '未知错误',
+                    status: 'error',
+                    url: data.url
+                }
             }
             return res.json().then((r) => {
                 if (r.msg === 'success') {
@@ -131,11 +156,19 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null> {
                     urlTokenCache.set(data.url, r)
                     return r
                 }
-                return null
+                return {
+                    error: r.msg,
+                    status: 'error',
+                    url: data.url
+                }
             })
 
-        }).catch(() => {
-            return null
+        }).catch((error) => {
+            return {
+                error: String(error),
+                status: 'error',
+                url: data.url
+            }
         })
     }
 }
