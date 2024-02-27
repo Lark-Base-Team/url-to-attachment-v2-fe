@@ -1,4 +1,4 @@
-import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IWidgetField } from "@lark-base-open/js-sdk";
+import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IWidgetField, IWidgetTable, IWidgetView } from "@lark-base-open/js-sdk";
 import { downloadFile2 } from "./download";
 // @ts-ignore
 window.bitable = bitable
@@ -30,7 +30,14 @@ ${t('title.desc')}
         ],
         buttons: [t('ok')],
     }), async ({ values }: any) => {
-        let { table, view, urlField, cover, attachmentField, PersonalBaseToken } = values;
+        let { table, view, urlField, cover, attachmentField, PersonalBaseToken }: {
+            table: IWidgetTable,
+            view: IWidgetView,
+            urlField: IWidgetField,
+            cover: any,
+            attachmentField: IWidgetField,
+            PersonalBaseToken: string;
+        } = values;
         const tableId = table?.id
         const urlFieldId = urlField?.id
         const attachmentFieldId = attachmentField?.id
@@ -48,11 +55,11 @@ ${t('title.desc')}
 
         uiBuilder.showLoading(' ');
         const urlFieldType = await urlField.getType();
-        const viewRecordIds: string[] = await view.getVisibleRecordIdList();
+        const viewRecordIds = await view.getVisibleRecordIdList();
 
-        let urlValueList = await (urlField as IWidgetField).getFieldValueList();
+        let urlValueList = await urlField.getFieldValueList();
 
-        const attachmentValueList = await (attachmentField as IWidgetField).getFieldValueList();
+        const attachmentValueList = await attachmentField.getFieldValueList();
 
         const attachmentValueListRecordIds = attachmentValueList.map((v) => v.record_id).flat(2)
 
@@ -76,12 +83,12 @@ ${t('title.desc')}
         // @ts-ignore
         window._errorLog = _errorLog
         for (let cellValue of urlValueList) {
-            const progress = `${current}/${totalCellCount}`
+            const progress = `${current}/${totalCellCount}`;
+            current++;
             uiBuilder.showLoading(progress);
             const recordId = cellValue.record_id!;
             const value = cellValue.value
             if (!value) {
-                current++;
                 continue;
             };
             const urlList: string[] = []
@@ -98,7 +105,10 @@ ${t('title.desc')}
                         }
                     }
                 })
-                if (!urlList.length) continue;
+                if (!urlList.length) {
+                    _errorLog[current + t('unknown.url', { recordId })] = JSON.stringify(value)
+                    continue
+                };
                 const datas = urlList.map((item: any) => {
                     return {
                         personalToken: PersonalBaseToken,
@@ -108,30 +118,35 @@ ${t('title.desc')}
                     }
                 })
 
-                const attachments = (await Promise.all(datas.map(async (d, index) => {
+                const attachments: IOpenAttachment[] = (await Promise.all(datas.map(async (d, index) => {
                     const file = await getAttachment(d);
                     if ((file as IErrorLog)?.status === 'error') {
                         const { url, error } = file as IErrorLog
-                        _errorLog[url] = error;
+                        _errorLog[t('download.error', { url })] = error;
                         uiBuilder.message.error(t('download.error', { url, error }), 1.5)
                         return null
                     }
                     return file as IOpenAttachment | null
-                }))).filter((v) => v && v.token && v.timeStamp)
+                }))).filter((v) => v && v.token && v.timeStamp) as IOpenAttachment[]
                 try {
-                    await table.setCellValue(attachmentFieldId, recordId, attachments)
+                    await table.setCellValue<IOpenAttachment[]>(attachmentFieldId, recordId, attachments)
                 } catch (error) {
                     console.log(error)
                 }
-                current++;
+            } else {
+                _errorLog[current + t('unknown.url', { recordId })] = JSON.stringify(value)
             }
+
         };
-        uiBuilder.hideLoading()
+        uiBuilder.hideLoading();
+        setTimeout(() => {
+            document.querySelector('html')?.scrollBy({ top: 0.5 * window.innerHeight, behavior: 'smooth' })
+        }, 1000);
         uiBuilder.message.success(t('end'))
         if (Object.keys(_errorLog).length) {
             uiBuilder.text(t('end.with.error'));
             for (const url in _errorLog) {
-                uiBuilder.text(t('download.error', { url, error: _errorLog[url] }))
+                uiBuilder.text(url + _errorLog[url] + '\n')
             }
 
         }

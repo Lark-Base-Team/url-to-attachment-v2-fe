@@ -11,7 +11,7 @@
    "ok": "OK",
    "choosed.error": "Please choose complete information",
    "end": "Processed",
-   "download.error": "File 「{{url}}」 download failed: {{error}}\n",
+   "download.error": "File 「{{url}}」 download failed: ",
    "choosed.view": "Choose view",
    "end.with.error": "An error occurred when downloading the following link:\n"
 }

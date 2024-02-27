@@ -11,7 +11,8 @@
   "ok": "确定",
   "choosed.error": "请选择完整信息",
   "end": "处理完毕",
-  "download.error": "文件「{{url}}」下载失败：{{error}}\n",
+  "download.error": "文件「{{url}}」下载失败：",
   "choosed.view":"选择视图",
-  "end.with.error":"以下链接在下载的时候出现了错误：\n"
+  "end.with.error":"以下链接在下载的时候出现了错误：\n",
+  "unknown.url":"无法识别为url的单元格{{recordId}}："
 }

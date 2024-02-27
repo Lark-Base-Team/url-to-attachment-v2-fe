@@ -11,7 +11,7 @@
   "ok": "OK",
   "choosed.error": "Vui lòng chọn thông tin đầy đủ",
   "end": "Đã xử lý",
-  "download.error": "Tải xuống tệp 「{{url}}」 không thành công: {{error}}\n",
+  "download.error": "Tải xuống tệp 「{{url}}」 không thành công:",
   "choosed.view": "Chọn chế độ xem",
   "end.with.error": "Đã xảy ra lỗi khi tải xuống liên kết sau:\n"
 }
