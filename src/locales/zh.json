@@ -2,7 +2,7 @@
   "load_error.1": "运行项目后，请获取 webview 地址，粘贴至多维表格「扩展脚本」中使用。详见：",
   "load.guide": "开发指南",
   "title": "将 URL 对应的图片、文件转换为附件（支持 20M 以内文件)",
-  "title.desc": "点击右上角🔗按钮获取授权码，详情可参考[使用指南](https://feishu.feishu.cn/docx/Samyd47njoe46wx6cgWcDIywnZZ)",
+  "title.desc": "获取授权码请参考：[使用指南](https://feishu.feishu.cn/docx/Samyd47njoe46wx6cgWcDIywnZZ)",
   "base.token": "多维表格授权码",
   "choosed.table": "选择数据表",
   "choosed.url": "选择 URL字段",

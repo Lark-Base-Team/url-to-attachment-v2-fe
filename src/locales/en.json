@@ -2,7 +2,7 @@
    "load_error.1": "After running the project, please get the webview address and paste it into the multidimensional table \"Extended Script\" for use. See: ",
    "load.guide": "Development Guide",
    "title": "Convert the pictures and files corresponding to the URL into attachments (support files within 20M)",
-   "title.desc": "Click the 🔗 button in the upper right corner to get the authorization code. For details, please refer to [User Guide](https://feishu.feishu.cn/docx/Samyd47njoe46wx6cgWcDIywnZZ)",
+   "title.desc": "To obtain the authorization code, please refer to: [User Guide](https://feishu.feishu.cn/docx/Samyd47njoe46wx6cgWcDIywnZZ)",
    "base.token": "Authorization code",
    "choosed.table": "Choose table",
    "choosed.url": "Choose the URL field",
