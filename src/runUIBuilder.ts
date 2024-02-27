@@ -1,4 +1,4 @@
-import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix } from "@lark-base-open/js-sdk";
+import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IWidgetField, IWidgetTable, IWidgetView } from "@lark-base-open/js-sdk";
 import { downloadFile2 } from "./download";
 // @ts-ignore
 window.bitable = bitable
@@ -30,12 +30,19 @@ ${t('title.desc')}
         ],
         buttons: [t('ok')],
     }), async ({ values }: any) => {
-        let { table, view, urlField, cover, attachmentField, PersonalBaseToken } = values;
+        let { table, view, urlField, cover, attachmentField, PersonalBaseToken }: {
+            table: IWidgetTable,
+            view: IWidgetView,
+            urlField: IWidgetField,
+            cover: any,
+            attachmentField: IWidgetField,
+            PersonalBaseToken: string;
+        } = values;
         const tableId = table?.id
         const urlFieldId = urlField?.id
         const attachmentFieldId = attachmentField?.id
         cover = cover.length ? true : false;
-        if (!tableId || !urlFieldId || !attachmentFieldId || !PersonalBaseToken) {
+        if (!tableId || !urlFieldId || !attachmentFieldId || !PersonalBaseToken || !view) {
             uiBuilder.message.error(t('choosed.error'))
             return;
         };
@@ -49,8 +56,25 @@ ${t('title.desc')}
         uiBuilder.showLoading(' ');
         const urlFieldType = await urlField.getType();
         const viewRecordIds = await view.getVisibleRecordIdList();
+
         let urlValueList = await urlField.getFieldValueList();
-        urlValueList = urlValueList.filter(({ record_id }: any) => viewRecordIds.includes(record_id))
+
+        const attachmentValueList = await attachmentField.getFieldValueList();
+
+        const attachmentValueListRecordIds = attachmentValueList.map((v) => v.record_id).flat(2)
+
+        if (!cover) {
+            urlValueList = urlValueList.filter(({ record_id }: any) => {
+                return !attachmentValueListRecordIds.includes(record_id)
+            })
+        }
+
+        urlValueList = urlValueList.filter(({ record_id }: any) => {
+            return viewRecordIds.includes(record_id)
+        }).sort((a, b) => viewRecordIds.indexOf(a.record_id ?? '') - viewRecordIds.indexOf(b.record_id ?? ''))
+
+
+
         console.log('===当前视图下的url', urlValueList)
         const totalCellCount = urlValueList.length;
 
@@ -59,31 +83,32 @@ ${t('title.desc')}
         // @ts-ignore
         window._errorLog = _errorLog
         for (let cellValue of urlValueList) {
-            uiBuilder.showLoading(`${current}/${totalCellCount}`);
+            const progress = `${current}/${totalCellCount}`;
+            current++;
+            uiBuilder.showLoading(progress);
             const recordId = cellValue.record_id!;
-            if (!cover) {
-                const attachment = await table.getCellString(attachmentFieldId, recordId);
-                if (attachment) {
-                    continue;
-                }
-            }
             const value = cellValue.value
-            if (!value) continue;
+            if (!value) {
+                continue;
+            };
             const urlList: string[] = []
             if (Array.isArray(value)) {
-                value.forEach((item) => {
+                value.forEach((item: any) => {
                     if (item.type === IOpenSegmentType.Url) {
-                        if (ISURLREG.test(item.link)) {
-                            urlList.push(item.link)
+                        if (ISURLREG.test(item.link.trim())) {
+                            urlList.push(item.link.trim())
                         }
                     }
                     if (item.type === IOpenSegmentType.Text) {
-                        if (ISURLREG.test(item.text)) {
-                            urlList.push(item.text)
+                        if (ISURLREG.test(item.text.trim())) {
+                            urlList.push(item.text.trim())
                         }
                     }
                 })
-                if (!urlList.length) continue;
+                if (!urlList.length) {
+                    _errorLog[current + t('unknown.url', { recordId })] = JSON.stringify(value)
+                    continue
+                };
                 const datas = urlList.map((item: any) => {
                     return {
                         personalToken: PersonalBaseToken,
@@ -93,30 +118,35 @@ ${t('title.desc')}
                     }
                 })
 
-                const attachments = (await Promise.all(datas.map(async (d, index) => {
+                const attachments: IOpenAttachment[] = (await Promise.all(datas.map(async (d, index) => {
                     const file = await getAttachment(d);
                     if ((file as IErrorLog)?.status === 'error') {
                         const { url, error } = file as IErrorLog
-                        _errorLog[url] = error;
+                        _errorLog[t('download.error', { url })] = error;
                         uiBuilder.message.error(t('download.error', { url, error }), 1.5)
                         return null
                     }
                     return file as IOpenAttachment | null
-                }))).filter((v) => v && v.token && v.timeStamp)
+                }))).filter((v) => v && v.token && v.timeStamp) as IOpenAttachment[]
                 try {
-                    await table.setCellValue(attachmentFieldId, recordId, attachments)
+                    await table.setCellValue<IOpenAttachment[]>(attachmentFieldId, recordId, attachments)
                 } catch (error) {
                     console.log(error)
                 }
-                current++;
+            } else {
+                _errorLog[current + t('unknown.url', { recordId })] = JSON.stringify(value)
             }
+
         };
-        uiBuilder.hideLoading()
+        uiBuilder.hideLoading();
+        setTimeout(() => {
+            document.querySelector('html')?.scrollBy({ top: 0.5 * window.innerHeight, behavior: 'smooth' })
+        }, 1000);
         uiBuilder.message.success(t('end'))
         if (Object.keys(_errorLog).length) {
             uiBuilder.text(t('end.with.error'));
             for (const url in _errorLog) {
-                uiBuilder.text(t('download.error', { url, error: _errorLog[url] }))
+                uiBuilder.text(url + _errorLog[url] + '\n')
             }
 
         }
