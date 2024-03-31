@@ -68,14 +68,18 @@ ${t("title.desc")}
         const attachmentFieldName = await attachmentField.getName();
         await saveAutomationConfig({
           app_token: appToken,
-          config_name: `将 [${tableName}] 表中 [${urlFieldName}] 字段的链接转为附件, 保存到 [${attachmentFieldName}] 字段` + (cover ? ", 并覆盖现有附件" : ""),
+          config_name: t("automationConfigName", {
+            tableName: tableName,
+            urlFieldName: urlFieldName,
+            attachmentFieldName: attachmentFieldName
+          }) + (cover ? t("automationConfigName.cover") : ""),
           extension_id: "replit_3c5c253b1beae3e3",
           table_id: tableId,
           url_field_id: urlFieldId,
           attachment_field_id: attachmentFieldId,
           cover: cover,
         });
-        uiBuilder.message.success("保存自动化配置成功, 请前往自动化流程中选择 插件自动化 节点进行配置");
+        uiBuilder.message.success(t("saveAutomation.success"));
         uiBuilder.hideLoading();
         return;
       }
