@@ -9,10 +9,11 @@
   "choosed.att": "选择附件字段",
   "cover": "覆盖已有附件",
   "ok": "确定",
+  "saveAutomation": "保存为自动化",
   "choosed.error": "请选择完整信息",
   "end": "处理完毕",
   "download.error": "文件「{{url}}」下载失败：",
-  "choosed.view":"选择视图",
-  "end.with.error":"以下链接在下载的时候出现了错误：\n",
-  "unknown.url":"无法识别为url的单元格{{recordId}}："
+  "choosed.view": "选择视图",
+  "end.with.error": "以下链接在下载的时候出现了错误：\n",
+  "unknown.url": "无法识别为url的单元格{{recordId}}："
 }
