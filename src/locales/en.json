@@ -15,7 +15,7 @@
   "download.error": "File 「{{url}}」 download failed: ",
   "choosed.view": "Choose view",
   "end.with.error": "An error occurred when downloading the following link:\n",
-  "saveAutomation.success": "Save automation configuration successfully. Please go to the automation workflow and select the [Extension Automation] node for configuration.",
+  "saveAutomation.success": "Save automation configuration successfully. Please go to the automation workflow and select the [Extension Automation] node for configuration. This is an internal BETA function, Please contact @周寰 for help",
   "automationConfigName": "In the [{{tableName}}] table, convert the URL in the [{{urlFieldName}}] field to attachment, and save it to the [${{attachmentFieldName}}] field",
   "automationConfigName.cover": ", replacing the existing attachments"
 }
