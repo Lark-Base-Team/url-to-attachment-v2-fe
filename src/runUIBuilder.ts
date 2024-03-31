@@ -34,7 +34,8 @@ ${t("title.desc")}
         }),
         form.checkboxGroup("cover", { label: "", options: [t("cover")], defaultValue: [] }),
       ],
-      buttons: tenantKey === "736588c9260f175d" ? [t("ok"), t("saveAutomation")] : [t("ok")],
+      buttons: [t("ok")],
+    //   buttons: tenantKey === "736588c9260f175d" ? [t("ok"), t("saveAutomation")] : [t("ok")],
     }),
     async ({ key, values }: any) => {
       let {
@@ -190,9 +191,9 @@ ${t("title.desc")}
       }
     }
   );
-  if (tenantKey === "736588c9260f175d") {
-    uiBuilder.markdown(`${t("betaInfo")}`);
-  }
+//   if (tenantKey === "736588c9260f175d") {
+//     uiBuilder.markdown(`${t("betaInfo")}`);
+//   }
 }
 
 interface IErrorLog {
