@@ -190,6 +190,9 @@ ${t("title.desc")}
       }
     }
   );
+  if (tenantKey === "736588c9260f175d") {
+    uiBuilder.markdown(`${t("betaInfo")}`);
+  }
 }
 
 interface IErrorLog {

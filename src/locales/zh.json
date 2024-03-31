@@ -18,5 +18,6 @@
   "unknown.url": "无法识别为url的单元格{{recordId}}：",
   "saveAutomation.success": "保存自动化配置成功, 请前往自动化流程中选择 插件自动化 节点进行配置, 该能力为内测能力，请联系 @周寰 添加灰度",
   "automationConfigName": "将 [{{tableName}}] 表中 [{{urlFieldName}}] 字段的链接转为附件, 保存到 [${{attachmentFieldName}}] 字段",
-  "automationConfigName.cover": ", 并覆盖现有附件"
+  "automationConfigName.cover": ", 并覆盖现有附件",
+  "betaInfo": "保存为自动化 为内测功能，如需使用请联系 @周寰"
 }

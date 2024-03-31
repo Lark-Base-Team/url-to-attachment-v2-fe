@@ -17,5 +17,6 @@
   "end.with.error": "Đã xảy ra lỗi khi tải xuống liên kết sau:\n",
   "saveAutomation.success": "Lưu cấu hình tự động thành công. Vui lòng đi đến quy trình tự động và chọn nút [Tự động hóa Extension] để cấu hình",
   "automationConfigName": "In the [{{tableName}}] table, convert the URL in the [{{urlFieldName}}] field to attachment, and save it to the [${{attachmentFieldName}}] field",
-  "automationConfigName.cover": ", and replace the existing attachments"
+  "automationConfigName.cover": ", and replace the existing attachments",
+  "betaInfo": "Save as Automation is a BETA function, please contact @周寰 if you need it"
 }
