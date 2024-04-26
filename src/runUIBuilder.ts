@@ -1,10 +1,10 @@
 import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IWidgetField, IWidgetTable, IWidgetView } from "@lark-base-open/js-sdk";
 import { downloadFile2 } from "./download";
 import { saveAutomationConfig } from "./api";
+import { isUrl } from "./utils";
 // @ts-ignore
 window.bitable = bitable;
 let _errorLog: { [p: string]: string } = {};
-const ISURLREG = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
 const urlTokenCache = new Map();
 //
 
@@ -131,12 +131,12 @@ ${t("title.desc")}
         if (Array.isArray(value)) {
           value.forEach((item: any) => {
             if (item.type === IOpenSegmentType.Url) {
-              if (ISURLREG.test(item.link.trim())) {
+              if (isUrl(item.link.trim())) {
                 urlList.push(item.link.trim());
               }
             }
             if (item.type === IOpenSegmentType.Text) {
-              if (ISURLREG.test(item.text.trim())) {
+              if (isUrl(item.text.trim())) {
                 urlList.push(item.text.trim());
               }
             }
