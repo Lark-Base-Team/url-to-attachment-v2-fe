@@ -87,7 +87,7 @@ ${t("title.desc")}
       const bitableurl = await bitable.bridge.getBitableUrl({ tableId: "ddd", viewId: "ddd" } as any);
       const _bitableurl = new URL(bitableurl);
       const domain = _bitableurl.host.includes(".feishu.") ? "Feishu" : "Lark";
-      const appToken = _bitableurl.pathname.split("/").pop();
+      const appToken = (await bitable.base.getSelection()).baseId;
 
       uiBuilder.showLoading(" ");
       const urlFieldType = await urlField.getType();
