@@ -34,7 +34,8 @@ ${t("title.desc")}
         }),
         form.checkboxGroup("cover", { label: "", options: [t("cover")], defaultValue: [] }),
       ],
-      buttons: tenantKey === "736588c9260f175d" ? [t("ok"), t("saveAutomation")] : [t("ok")],
+    //   buttons: tenantKey === "736588c9260f175d" ? [t("ok"), t("saveAutomation")] : [t("ok")],
+      buttons: [t("ok")],
     }),
     async ({ key, values }: any) => {
       let {
