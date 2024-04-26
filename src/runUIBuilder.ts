@@ -1,4 +1,4 @@
-import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IWidgetField, IWidgetTable, IWidgetView } from "@lark-base-open/js-sdk";
+import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IField, ITable, IView } from "@lark-base-open/js-sdk";
 import { downloadFile2 } from "./download";
 // @ts-ignore
 window.bitable = bitable
@@ -31,11 +31,11 @@ ${t('title.desc')}
         buttons: [t('ok')],
     }), async ({ values }: any) => {
         let { table, view, urlField, cover, attachmentField, PersonalBaseToken }: {
-            table: IWidgetTable,
-            view: IWidgetView,
-            urlField: IWidgetField,
+            table: ITable,
+            view: IView,
+            urlField: IField,
             cover: any,
-            attachmentField: IWidgetField,
+            attachmentField: IField,
             PersonalBaseToken: string;
         } = values;
         const tableId = table?.id
@@ -50,7 +50,7 @@ ${t('title.desc')}
         const bitableurl = await bitable.bridge.getBitableUrl({ tableId: 'ddd', viewId: 'ddd' } as any)
         const _bitableurl = new URL(bitableurl)
         const domain = _bitableurl.host.includes('.feishu.') ? 'Feishu' : 'Lark';
-        const appToken = _bitableurl.pathname.split('/').pop();
+        const appToken = (await bitable.base.getSelection()).baseId;
 
 
         uiBuilder.showLoading(' ');
