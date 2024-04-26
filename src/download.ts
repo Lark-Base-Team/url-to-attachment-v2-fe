@@ -77,6 +77,10 @@ export function downloadFile2({ url, filename }: DownloadFile): Promise<File> {
                 ex = contentTypeExtension[contentType] || ''
             }
             const blob = await response.blob();
+            if(!blob?.size){
+                reject(new Error(`文件下载失败. Response status: ${response.status}.`));
+                return;
+            }
             const file = new File([blob], replaceInvalidCharsInUrl(pre + filename + ex), { type: contentType });
             resolve(file)
         } catch (error) {
