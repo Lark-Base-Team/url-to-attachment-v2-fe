@@ -1,7 +1,7 @@
-import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IWidgetField, IWidgetTable, IWidgetView } from "@lark-base-open/js-sdk";
+import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldEventPrefix, IField, ITable, IView, FilterOperator, FilterConjunction } from "@lark-base-open/js-sdk";
 import { downloadFile2 } from "./download";
 import { saveAutomationConfig } from "./api";
-import { isUrl } from "./utils";
+import { batchUploadFileByQ, isUrl } from "./utils";
 // @ts-ignore
 window.bitable = bitable;
 let _errorLog: { [p: string]: string } = {};
@@ -34,7 +34,7 @@ ${t("title.desc")}
         }),
         form.checkboxGroup("cover", { label: "", options: [t("cover")], defaultValue: [] }),
       ],
-    //   buttons: tenantKey === "736588c9260f175d" ? [t("ok"), t("saveAutomation")] : [t("ok")],
+      //   buttons: tenantKey === "736588c9260f175d" ? [t("ok"), t("saveAutomation")] : [t("ok")],
       buttons: [t("ok")],
     }),
     async ({ key, values }: any) => {
@@ -46,11 +46,11 @@ ${t("title.desc")}
         attachmentField,
         PersonalBaseToken,
       }: {
-        table: IWidgetTable;
-        view: IWidgetView;
-        urlField: IWidgetField;
+        table: ITable;
+        view: IView;
+        urlField: IField;
         cover: any;
-        attachmentField: IWidgetField;
+        attachmentField: IField;
         PersonalBaseToken: string;
       } = values;
       const tableId = table?.id;
@@ -91,93 +91,106 @@ ${t("title.desc")}
       const appToken = (await bitable.base.getSelection()).baseId;
 
       uiBuilder.showLoading(" ");
-      const urlFieldType = await urlField.getType();
-      const viewRecordIds = await view.getVisibleRecordIdList();
-
-      let urlValueList = await urlField.getFieldValueList();
-
-      const attachmentValueList = await attachmentField.getFieldValueList();
-
-      const attachmentValueListRecordIds = attachmentValueList.map((v) => v.record_id).flat(2);
-
-      if (!cover) {
-        urlValueList = urlValueList.filter(({ record_id }: any) => {
-          return !attachmentValueListRecordIds.includes(record_id);
-        });
-      }
-
-      urlValueList = urlValueList
-        .filter(({ record_id }: any) => {
-          return viewRecordIds.includes(record_id);
-        })
-        .sort((a, b) => viewRecordIds.indexOf(a.record_id ?? "") - viewRecordIds.indexOf(b.record_id ?? ""));
-
-      console.log("===当前视图下的url", urlValueList);
-      const totalCellCount = urlValueList.length;
-
-      let current = 0;
       _errorLog = {};
       // @ts-ignore
       window._errorLog = _errorLog;
-      for (let cellValue of urlValueList) {
-        const progress = `${current}/${totalCellCount}`;
-        current++;
-        uiBuilder.showLoading(progress);
-        const recordId = cellValue.record_id!;
-        const value = cellValue.value;
-        if (!value) {
-          continue;
+      const urlFieldType = await urlField.getType();
+      /** 需要下载url并覆盖附件的记录id列表 */
+      let recordIds: string[] = [];
+      let hasMore = true;
+      let totalCellCount: number | undefined = undefined;
+      let nextPageToken: any = undefined;
+      /** 已经处理的记录 */
+      let current: number = 0;
+      const filter: any = {
+        conditions: [
+          {
+            fieldId: urlFieldId,
+            operator: FilterOperator.Contains,
+            value: 'http',
+          },
+          !cover ? ({
+            fieldId: attachmentFieldId,
+            operator: FilterOperator.IsEmpty,
+          }) : null
+        ].filter((v) => v),
+        conjunction: FilterConjunction.And
+      };
+      while (hasMore) {
+        const { pageToken, total: currentPageTotal, recordIds, hasMore: _hasMore } = await view.getVisibleRecordIdListByPage({
+          pageToken: nextPageToken,
+          filter
+        });
+        hasMore = _hasMore;
+        nextPageToken = pageToken;
+        if (!totalCellCount) {
+          totalCellCount = currentPageTotal;
         }
-        const urlList: string[] = [];
-        if (Array.isArray(value)) {
-          value.forEach((item: any) => {
-            if (item.type === IOpenSegmentType.Url) {
-              if (isUrl(item.link.trim())) {
-                urlList.push(item.link.trim());
-              }
-            }
-            if (item.type === IOpenSegmentType.Text) {
-              if (isUrl(item.text.trim())) {
-                urlList.push(item.text.trim());
-              }
-            }
-          });
-          if (!urlList.length) {
-            _errorLog[current + t("unknown.url", { recordId })] = JSON.stringify(value);
+        for (let index = 0; index < recordIds.length; index++) {
+          const recordId = recordIds[index];
+          const value = await table.getCellValue(urlFieldId, recordId);
+
+          const progress = `${current}/${totalCellCount}`;
+          current++;
+          uiBuilder.showLoading(progress);
+          if (!value) {
             continue;
           }
-          const datas = urlList.map((item: any) => {
-            return {
-              personalToken: PersonalBaseToken,
-              appToken,
-              brand: domain,
-              url: item, // 需要下载的url
-            };
-          });
-
-          const attachments: IOpenAttachment[] = (
-            await Promise.all(
-              datas.map(async (d, index) => {
-                const file = await getAttachment(d);
-                if ((file as IErrorLog)?.status === "error") {
-                  const { url, error } = file as IErrorLog;
-                  _errorLog[t("download.error", { url })] = error;
-                  uiBuilder.message.error(t("download.error", { url, error }), 1.5);
-                  return null;
+          const urlList: string[] = [];
+          if (Array.isArray(value)) {
+            value.forEach((item: any) => {
+              if (item.type === IOpenSegmentType.Url) {
+                if (isUrl(item.link.trim())) {
+                  urlList.push(item.link.trim());
                 }
-                return file as IOpenAttachment | null;
-              })
-            )
-          ).filter((v) => v && v.token && v.timeStamp) as IOpenAttachment[];
-          try {
-            await table.setCellValue<IOpenAttachment[]>(attachmentFieldId, recordId, attachments);
-          } catch (error) {
-            console.log(error);
+              }
+              if (item.type === IOpenSegmentType.Text) {
+                if (isUrl(item.text.trim())) {
+                  urlList.push(item.text.trim());
+                }
+              }
+            });
+            if (!urlList.length) {
+              _errorLog[current + t("unknown.url", { recordId })] = JSON.stringify(value);
+              continue;
+            }
+            const datas = urlList.map((item: any) => {
+              return {
+                personalToken: PersonalBaseToken,
+                appToken,
+                brand: domain,
+                url: item, // 需要下载的url
+              };
+            });
+
+            const attachments: IOpenAttachment[] = (
+              await Promise.all(
+                datas.map(async (d, index) => {
+                  const file = await getAttachment(d);
+                  console.log('===file', file);
+                  if ((file as IErrorLog)?.status === "error") {
+                    const { url, error } = file as IErrorLog;
+                    _errorLog[t("download.error", { url })] = error;
+                    uiBuilder.message.error(t("download.error", { url, error }), 1.5);
+                    return null;
+                  }
+                  return file as IOpenAttachment | null;
+                })
+              )
+            ).filter((v) => v && v.token && v.timeStamp) as IOpenAttachment[];
+            try {
+              await table.setCellValue<IOpenAttachment[]>(attachmentFieldId, recordId, attachments);
+            } catch (error) {
+              console.log(error);
+            }
+          } else {
+            _errorLog[current + t("unknown.url", { recordId })] = JSON.stringify(value);
           }
-        } else {
-          _errorLog[current + t("unknown.url", { recordId })] = JSON.stringify(value);
+
         }
+
       }
+
       uiBuilder.hideLoading();
       setTimeout(() => {
         document.querySelector("html")?.scrollBy({ top: 0.5 * window.innerHeight, behavior: "smooth" });
@@ -250,7 +263,7 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null | IError
 
 async function feDownloadFile(url: any): Promise<IOpenAttachment | null> {
   const file = await downloadFile2({ url, filename: new Date().getTime() + "" });
-  const [token] = await bitable.base.batchUploadFile([file]);
+  const [token] = await batchUploadFileByQ([file]);
   return {
     token,
     size: file.size,

@@ -9,6 +9,7 @@ export default function App() {
   const { t } = useTranslation();
   useEffect(() => {
     const uiBuilder = new UIBuilder(document.querySelector('#container') as HTMLElement,
+      // @ts-ignore
       { bitable, callback: (ui: any) => (callback(ui, t) as any) });
     return () => {
       uiBuilder.umount();

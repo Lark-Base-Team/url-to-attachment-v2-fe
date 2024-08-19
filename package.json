@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "keywords": [],
+  "output": "dist",
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -21,13 +22,14 @@
     "vite": "^3.0.4"
   },
   "dependencies": {
-    "@lark-base-open/js-sdk": "^0.2.2",
+    "@lark-base-open/js-sdk": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.4.1-rc.7.tgz",
     "antd": "^5.7.3",
     "axios": "^1.4.0",
     "i18next": "^23.4.2",
     "normalize.css": "^8.0.1",
     "react-i18next": "^13.0.3",
     "react-markdown": "^8.0.7",
+    "rxjs": "^7.8.1",
     "styled-components": "^6.0.5"
   }
 }
