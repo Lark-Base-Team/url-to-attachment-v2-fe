@@ -102,25 +102,45 @@ ${t("title.desc")}
       let nextPageToken: any = undefined;
       /** 已经处理的记录 */
       let current: number = 0;
+      /** 过滤出url是否包含http */
+      let urlContainsHttpFilter = null;
+
+      if (urlFieldType !== FieldType.Url) {
+        urlContainsHttpFilter = ({
+          fieldId: urlFieldId,
+          operator: FilterOperator.Contains,
+          value: 'http',
+        });
+      }
+      if (urlFieldType === FieldType.Formula || urlFieldType === FieldType.Lookup) {
+        const proxyType = await urlField.getProxyType();
+        if (proxyType === FieldType.Url) {
+          urlContainsHttpFilter = null;
+        }
+      }
+
+      /** 附件字段是否过滤出空的记录 */
+      let attachmentIfEmptyFilter = cover ? null : ({
+        fieldId: attachmentFieldId,
+        operator: FilterOperator.IsEmpty,
+      });
       const filter: any = {
         conditions: [
+          urlContainsHttpFilter,
           {
             fieldId: urlFieldId,
-            operator: FilterOperator.Contains,
-            value: 'http',
+            operator: FilterOperator.IsNotEmpty,
           },
-          !cover ? ({
-            fieldId: attachmentFieldId,
-            operator: FilterOperator.IsEmpty,
-          }) : null
+          attachmentIfEmptyFilter
         ].filter((v) => v),
         conjunction: FilterConjunction.And
       };
       while (hasMore) {
         const { pageToken, total: currentPageTotal, recordIds, hasMore: _hasMore } = await view.getVisibleRecordIdListByPage({
-          pageToken: nextPageToken,
+          pageToken: attachmentIfEmptyFilter ? undefined : nextPageToken,
           filter
         });
+
         hasMore = _hasMore;
         nextPageToken = pageToken;
         if (!totalCellCount) {
@@ -218,6 +238,7 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null | IError
   }
   try {
     const attachment = await feDownloadFile(data.url);
+    urlTokenCache.set(data.url, attachment);
     return attachment;
   } catch (error) {
     console.log("使用服务端下载", data.url);
@@ -264,13 +285,14 @@ async function getAttachment(data: any): Promise<IOpenAttachment | null | IError
 async function feDownloadFile(url: any): Promise<IOpenAttachment | null> {
   const file = await downloadFile2({ url, filename: new Date().getTime() + "" });
   const [token] = await batchUploadFileByQ([file]);
-  return {
+  const res = {
     token,
     size: file.size,
     name: file.name,
     type: file.type,
     timeStamp: new Date().getTime(),
-  };
+  }
+  return res;
 }
 
 /** 后端下载的模式 */
