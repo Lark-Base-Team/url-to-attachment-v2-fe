@@ -81,7 +81,13 @@ export function downloadFile2({ url, filename }: DownloadFile): Promise<File> {
                 reject(new Error(`文件下载失败. Response status: ${response.status}.`));
                 return;
             }
+            console.log('构造文件:',{
+                filename,
+                ex,
+                contentType}
+            )
             const file = new File([blob], replaceInvalidCharsInUrl(pre + filename + ex), { type: contentType });
+            console.log('===file', file)
             resolve(file)
         } catch (error) {
             reject(error)
@@ -138,6 +144,7 @@ export function downloadFile2({ url, filename }: DownloadFile): Promise<File> {
 
 /** 可以打开这种contentType的文件拓展名 */
 const contentTypeExtension: Record<string, string> = {
+    'image/jpg': '.jpg',
     'text/html': '.html',
     'text/css': '.css',
     'text/javascript': '.js',
