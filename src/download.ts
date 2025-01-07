@@ -76,6 +76,9 @@ export function downloadFile2({ url, filename }: DownloadFile): Promise<File> {
             if (!includesFileExtension(filename)) {
                 ex = contentTypeExtension[contentType] || ''
             }
+            if(!ex){
+                ex = contentTypeExtension[contentType.split(';')[0]] || ''
+            }
             const blob = await response.blob();
             if(!blob?.size){
                 reject(new Error(`文件下载失败. Response status: ${response.status}.`));
