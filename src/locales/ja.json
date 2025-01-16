@@ -1,0 +1,22 @@
+{
+  "load_error.1": "プロジェクトを実行した後、webviewアドレスを取得し、多次元テーブルの「拡張スクリプト」に貼り付けて使用してください。詳細はこちら：",
+  "load.guide": "開発ガイド",
+  "title": "URLに対応する画像やファイルを添付ファイルに変換（20M以内のファイルをサポート）",
+  "title.desc": "認証コードを取得するには、[ユーザーガイド](https://feishu.feishu.cn/docx/Samyd47njoe46wx6cgWcDIywnZZ)を参照してください",
+  "base.token": "認証コード",
+  "choosed.table": "テーブルを選択",
+  "choosed.url": "URLフィールドを選択",
+  "choosed.att": "添付ファイルフィールドを選択",
+  "cover": "既存の添付ファイルを上書き",
+  "ok": "OK",
+  "saveAutomation": "自動化として保存",
+  "choosed.error": "完全な情報を選択してください",
+  "end": "処理完了",
+  "download.error": "ファイル「{{url}}」のダウンロードに失敗しました：",
+  "choosed.view": "ビューを選択",
+  "end.with.error": "以下のリンクのダウンロード中にエラーが発生しました：\n",
+  "saveAutomation.success": "自動化設定の保存に成功しました。自動化ワークフローに移動し、[拡張自動化]ノードを選択して設定してください。これは内部BETA機能です。ヘルプが必要な場合は@周寰に連絡してください",
+  "automationConfigName": "[{{tableName}}]テーブルで、[{{urlFieldName}}]フィールドのURLを添付ファイルに変換し、[{{attachmentFieldName}}]フィールドに保存します",
+  "automationConfigName.cover": "、既存の添付ファイルを置き換えます",
+  "betaInfo": "自動化として保存はBETA機能です。必要であれば@周寰に連絡してください"
+}
