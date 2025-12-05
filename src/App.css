@@ -7,17 +7,22 @@
     bottom: 0;
     padding: 20px;
     background-color: black;
-    width:100vw;
+    width: 100vw;
     overflow: auto;
     color: white;
 }
 
-#errorlogcontainer .url{
-    color:#1890ff;
+#errorlogcontainer .url {
+    color: #1890ff;
 }
 div {
     white-space: pre-wrap;
 }
 body {
-  background: #fff;
+    background: #fff;
+}
+
+.form-items-required-icon {
+    color: red;
+    padding-left: 4px;
 }

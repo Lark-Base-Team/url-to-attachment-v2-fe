@@ -18,5 +18,6 @@
   "saveAutomation.success": "Save automation configuration successfully. Please go to the automation workflow and select the [Extension Automation] node for configuration. This is an internal BETA function, Please contact @周寰 for help",
   "automationConfigName": "In the [{{tableName}}] table, convert the URL in the [{{urlFieldName}}] field to attachment, and save it to the [{{attachmentFieldName}}] field",
   "automationConfigName.cover": ", replacing the existing attachments",
+  "file.name":"When the file type cannot be automatically identified, this file suffix is ​​used by default, such as pdf, docx, xlsx, etc.",
   "betaInfo": "Save as Automation is a BETA function, please contact @周寰 if you need it"
 }

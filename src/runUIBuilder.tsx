@@ -2,6 +2,7 @@ import { bitable, FieldType, checkers, IOpenAttachment, IOpenSegmentType, fieldE
 import { downloadFile2 } from "./download";
 import { saveAutomationConfig } from "./api";
 import { batchUploadFileByQ, isUrl } from "./utils";
+import { fileTypeByContentType } from "./fileType";
 // @ts-ignore
 window.bitable = bitable;
 let _errorLog: { [p: string]: string } = {};
@@ -18,20 +19,21 @@ ${t("title.desc")}
   uiBuilder.form(
     (form: any) => ({
       formItems: [
-        form.input("PersonalBaseToken", { label: t("base.token") }),
-        form.tableSelect("table", { label: t("choosed.table") }),
-        form.viewSelect("view", { label: t("choosed.view"), sourceTable: "table" }),
+        form.input("PersonalBaseToken", { label: <div>{t("base.token")}<span className="form-items-required-icon">*</span></div> }),
+        form.tableSelect("table", { label: <div>{t("choosed.table")}<span className="form-items-required-icon">*</span></div> }),
+        form.viewSelect("view", { label: <div>{t("choosed.view")}<span className="form-items-required-icon">*</span></div>, sourceTable: "table" }),
         form.fieldSelect("urlField", {
           required: true,
-          label: t("choosed.url"),
+          label: <div>{t("choosed.url")}<span className="form-items-required-icon">*</span></div>,
           filterByTypes: [FieldType.Text, FieldType.Url, FieldType.Lookup, FieldType.Formula],
           sourceTable: "table",
         }),
         form.fieldSelect("attachmentField", {
-          label: t("choosed.att"),
+          label: <div>{t("choosed.att")}<span className="form-items-required-icon">*</span></div>,
           filterByTypes: [FieldType.Attachment],
           sourceTable: "table",
         }),
+        form.input("fileExName", { label: t("file.name") }),
         form.checkboxGroup("cover", { label: "", options: [t("cover")], defaultValue: [] }),
       ],
       //   buttons: tenantKey === "736588c9260f175d" ? [t("ok"), t("saveAutomation")] : [t("ok")],
@@ -44,16 +46,20 @@ ${t("title.desc")}
         urlField,
         cover,
         attachmentField,
+        fileExName = '',
         PersonalBaseToken,
       }: {
         table: ITable;
         view: IView;
         urlField: IField;
         cover: any;
+        fileExName: string;
         attachmentField: IField;
         PersonalBaseToken: string;
       } = values;
       const tableId = table?.id;
+      fileExName = fileExName.trim();
+      fileExName = fileExName.startsWith('.') ? fileExName.slice(1) : `${fileExName}`;
       const urlFieldId = urlField?.id;
       const attachmentFieldId = attachmentField?.id;
       cover = cover.length ? true : false;
@@ -178,6 +184,7 @@ ${t("title.desc")}
               return {
                 personalToken: PersonalBaseToken,
                 appToken,
+                fileExName,
                 brand: domain,
                 url: item, // 需要下载的url
               };
@@ -233,57 +240,67 @@ interface IErrorLog {
 }
 
 async function getAttachment(data: any): Promise<IOpenAttachment | null | IErrorLog> {
-  if (urlTokenCache.has(data.url)) {
-    return urlTokenCache.get(data.url);
-  }
-  try {
-    const attachment = await feDownloadFile(data.url);
-    urlTokenCache.set(data.url, attachment);
-    return attachment;
-  } catch (error) {
-    console.log("使用服务端下载", data.url);
-    return beDownload({
-      params: {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
+  const getRes = async (): Promise<IOpenAttachment | null | IErrorLog> => {
+
+    if (urlTokenCache.has(data.url)) {
+      return urlTokenCache.get(data.url);
+    }
+    try {
+      const attachment = await feDownloadFile(data.url, {
+        fileExName: data.fileExName,
+      });
+      urlTokenCache.set(data.url, attachment);
+      return attachment;
+    } catch (error) {
+      console.log("使用服务端下载", data.url);
+      return beDownload({
+        params: {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      },
-    })
-      .then((res) => {
-        if (!res) {
-          return {
-            error: "未知错误",
-            status: "error",
-            url: data.url,
-          };
-        }
-        return res.json().then((r) => {
-          if (r.msg === "success") {
-            delete r.msg;
-            urlTokenCache.set(data.url, r);
-            return r;
+      })
+        .then((res) => {
+          if (!res) {
+            return {
+              error: "未知错误",
+              status: "error",
+              url: data.url,
+            };
           }
+          return res.json().then((r) => {
+            if (r.msg === "success") {
+              delete r.msg;
+              urlTokenCache.set(data.url, r);
+              return r;
+            }
+            return {
+              error: r.msg,
+              status: "error",
+              url: data.url,
+            };
+          });
+        })
+        .catch((error) => {
           return {
-            error: r.msg,
+            error: String(error),
             status: "error",
             url: data.url,
           };
         });
-      })
-      .catch((error) => {
-        return {
-          error: String(error),
-          status: "error",
-          url: data.url,
-        };
-      });
+    }
+
   }
+
+  const res = await getRes();
+  return res;
 }
 
-async function feDownloadFile(url: any): Promise<IOpenAttachment | null> {
-  const file = await downloadFile2({ url, filename: new Date().getTime() + "" });
+
+async function feDownloadFile(url: any, options?: { fileExName?: string }): Promise<IOpenAttachment | null> {
+  const file = await downloadFile2({ url, filename: new Date().getTime() + "", fileExName: options?.fileExName || '' });
   const [token] = await batchUploadFileByQ([file]);
   const res = {
     token,
@@ -297,10 +314,21 @@ async function feDownloadFile(url: any): Promise<IOpenAttachment | null> {
 
 /** 后端下载的模式 */
 async function beDownload({ params }: { params: RequestInit }) {
+  const { url } = JSON.parse(params.body as string || "{}");
   try {
-    return await fetch("https://url-zhuan-fu-jian-v-2-hou-duan-lark-base.replit.app/upload/file", params);
-  } catch {
+    return await fetch("https://connector.baseopendevx.com/url-convert/upload/file", params);
+  } catch (error) {
     console.error("==后端1下载失败，尝试另一个接口");
-    return await fetch("https://url-zhuan-fu-jian-v-2-hou-duan-lark-base.replit.app/upload/file", params);
+    return {
+      async json() {
+        return {
+          status: "error",
+          error: String(error),
+          url,
+          msg: String(error),
+        }
+      }
+
+    }
   }
 }

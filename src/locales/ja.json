@@ -18,5 +18,6 @@
   "saveAutomation.success": "自動化設定の保存に成功しました。自動化ワークフローに移動し、[拡張自動化]ノードを選択して設定してください。これは内部BETA機能です。ヘルプが必要な場合は@周寰に連絡してください",
   "automationConfigName": "[{{tableName}}]テーブルで、[{{urlFieldName}}]フィールドのURLを添付ファイルに変換し、[{{attachmentFieldName}}]フィールドに保存します",
   "automationConfigName.cover": "、既存の添付ファイルを置き換えます",
+  "file.name":"ファイルの種類を自動的に識別できない場合は、pdf、docx、xlsx などのこのファイルサフィックスがデフォルトで使用されます。",
   "betaInfo": "自動化として保存はBETA機能です。必要であれば@周寰に連絡してください"
 }
